@@ -1,7 +1,8 @@
 ﻿#include <iostream>
 #include <string>
+#include <vector>
 
-void print_board(int board[]) {
+void print_board(int (&board)[81]) {
 	std::cout << "_______________________________________\n";
 	for (int i = 0; i < 9; i++) {
 		std::string row[9];
@@ -27,6 +28,81 @@ void print_board(int board[]) {
 	}
 }
 
+void set_vector(std::vector< std::vector<int> >& vector, unsigned int position, int value) {
+	if (position < vector.size()) {
+		vector[position].push_back(value);
+	}
+	else {
+		vector.push_back({value});
+	}
+}
+
+void check_spaces(int(&board)[81]) {
+	std::vector< std::vector<int> > rows;
+	std::vector< std::vector<int> > columns;
+	std::vector< std::vector<int> > boxes;
+
+	for (int i = 0; i < 81; i++) {
+		int row = i / 9;
+		//std::cout << "\n \n" << i + 1 << " - Row: " << row + 1 << std::endl;
+
+
+		double d_column = double(i) / 9.0;
+		while (d_column >= 1) {
+			d_column--;
+		}
+		d_column *= 9;
+		d_column = round(d_column);
+		int column = int(d_column);
+		//std::cout << "" << i + 1 << " - Column: " << column + 1 << std::endl;
+
+
+		int box = 0;
+		if (row < 3) {
+			if (column < 3)
+				box = 0;
+			else if (column < 6)
+				box = 1;
+			else if (column < 9)
+				box = 2;
+		}
+		else if (row < 6) {
+			if (column < 3)
+				box = 3;
+			else if (column < 6)
+				box = 4;
+			else if (column < 9)
+				box = 5;
+		}
+		else if (row < 9) {
+			if (column < 3)
+				box = 6;
+			else if (column < 6)
+				box = 7;
+			else if (column < 9)
+				box = 8;
+		}
+		//std::cout << "" << i + 1 << " - Box: " << box + 1 << std::endl;
+
+
+		set_vector(rows, row, board[i]);
+		set_vector(columns, column, board[i]);
+		set_vector(boxes, box, board[i]);
+	}
+	for (int i = 0; i < 81; i++) {
+		if (board[i] == 0) {
+			std::vector<int> possible_values = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+
+
+			std::cout << "\n[" << i + 1 << "] Possible values: ";
+			for (int j : possible_values) {
+				std::cout << j << ", ";
+			}
+		}
+	}
+}
+
 int main() {
 	int game_board[81] = { 
 		6, 0, 0,  0, 0, 9,  7, 4, 0, 
@@ -42,4 +118,6 @@ int main() {
 		0, 8, 6,  4, 0, 0,  0, 0, 5 };
 
 	print_board(game_board);
+
+	check_spaces(game_board);
 }
