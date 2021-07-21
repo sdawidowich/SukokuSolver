@@ -113,6 +113,46 @@ void remove_values(std::vector< std::vector<int> >& rows, std::vector< std::vect
 	}
 }
 
+void check_grouping(std::string g_name, std::vector<int>& group, std::vector<int>& possible_values, std::vector<std::vector<int>>& rows, Positions& positions, std::vector<std::vector<int>>& columns, std::vector<std::vector<int>>& boxes, std::vector<int>& board, int i, bool& found_answer)
+{
+	for (int j = 0; j < possible_values.size(); j++) {
+		int possible_slots = 0;
+		int value = possible_values[j];
+
+		for (int k = 0; k < 9; k++) {
+			if (group[k] == 0) {
+				int index = 0;
+				if (g_name == "row")
+					index = positions.row * 9 + k;
+				else if (g_name == "column")
+					index = positions.column + 9 * k;
+				else
+					index = positions.box * 3 + k + (k / 3) * 6 + (positions.box / 3) * 18;
+				Positions temp_positions = get_positions(index);
+
+				if (std::find(rows[temp_positions.row].begin(), rows[temp_positions.row].end(), value) != rows[temp_positions.row].end()) {
+					continue;
+				}
+				else if (std::find(columns[temp_positions.column].begin(), columns[temp_positions.column].end(), value) != columns[temp_positions.column].end()) {
+					continue;
+				}
+				else if (std::find(boxes[temp_positions.box].begin(), boxes[temp_positions.box].end(), value) != boxes[temp_positions.box].end()) {
+					continue;
+				}
+				else {
+					possible_slots++;
+				}
+			}
+		}
+
+		if (possible_slots == 1) {
+			board[i] = value;
+			found_answer = true;
+			break;
+		}
+	}
+}
+
 void check_spaces(std::vector<int>& board) {
 	std::vector< std::vector<int> > rows;
 	std::vector< std::vector<int> > columns;
@@ -140,99 +180,12 @@ void check_spaces(std::vector<int>& board) {
 			}
 			else {
 				bool found_answer = false;
-				for (int j = 0; j < possible_values.size(); j++) {
-					int possible_slots = 0;
-					int value = possible_values[j];
-
-					for (int k = 0; k < 9; k++) {
-						if (boxes[positions.box][k] == 0) {
-							int index = positions.box * 3 + k + (k / 3) * 6 + (positions.box / 3) * 18;
-							Positions temp_positions = get_positions(index);
-
-							if (std::find(rows[temp_positions.row].begin(), rows[temp_positions.row].end(), value) != rows[temp_positions.row].end()) {
-								continue;
-							}
-							else if (std::find(columns[temp_positions.column].begin(), columns[temp_positions.column].end(), value) != columns[temp_positions.column].end()) {
-								continue;
-							}
-							else if (std::find(boxes[temp_positions.box].begin(), boxes[temp_positions.box].end(), value) != boxes[temp_positions.box].end()) {
-								continue;
-							}
-							else {
-								possible_slots++;
-							}
-						}
-					}
-
-					if (possible_slots == 1) {
-						board[i] = value;
-						found_answer = true;
-						break;
-					}
+				check_grouping("box", boxes[positions.box], possible_values, rows, positions, columns, boxes, board, i, found_answer);
+				if (!found_answer) {
+					check_grouping("row", rows[positions.row], possible_values, rows, positions, columns, boxes, board, i, found_answer);
 				}
 				if (!found_answer) {
-					for (int j = 0; j < possible_values.size(); j++) {
-						int possible_slots = 0;
-						int value = possible_values[j];
-
-						for (int k = 0; k < 9; k++) {
-							if (rows[positions.row][k] == 0) {
-								int index = positions.row * 9 + k;
-								Positions temp_positions = get_positions(index);
-
-								if (std::find(rows[temp_positions.row].begin(), rows[temp_positions.row].end(), value) != rows[temp_positions.row].end()) {
-									continue;
-								}
-								else if (std::find(columns[temp_positions.column].begin(), columns[temp_positions.column].end(), value) != columns[temp_positions.column].end()) {
-									continue;
-								}
-								else if (std::find(boxes[temp_positions.box].begin(), boxes[temp_positions.box].end(), value) != boxes[temp_positions.box].end()) {
-									continue;
-								}
-								else {
-									possible_slots++;
-								}
-							}
-						}
-
-						if (possible_slots == 1) {
-							board[i] = value;
-							found_answer = true;
-							break;
-						}
-					}
-				}
-				if (!found_answer) {
-					for (int j = 0; j < possible_values.size(); j++) {
-						int possible_slots = 0;
-						int value = possible_values[j];
-
-						for (int k = 0; k < 9; k++) {
-							if (columns[positions.column][k] == 0) {
-								int index = positions.column + 9 * k;
-								Positions temp_positions = get_positions(index);
-
-								if (std::find(rows[temp_positions.row].begin(), rows[temp_positions.row].end(), value) != rows[temp_positions.row].end()) {
-									continue;
-								}
-								else if (std::find(columns[temp_positions.column].begin(), columns[temp_positions.column].end(), value) != columns[temp_positions.column].end()) {
-									continue;
-								}
-								else if (std::find(boxes[temp_positions.box].begin(), boxes[temp_positions.box].end(), value) != boxes[temp_positions.box].end()) {
-									continue;
-								}
-								else {
-									possible_slots++;
-								}
-							}
-						}
-
-						if (possible_slots == 1) {
-							board[i] = value;
-							found_answer = true;
-							break;
-						}
-					}
+					check_grouping("column", columns[positions.column], possible_values, rows, positions, columns, boxes, board, i, found_answer);
 				}
 			}
 

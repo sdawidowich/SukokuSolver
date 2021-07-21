@@ -1,2 +1,2 @@
 # SukokuSolver
-Solves any given sodoku puzzle
+This C++ program attempts to solve any given sudoku puzzle through normal sudoku strategies. A sudoku puzzle is given through a vector containing 81 integers. 0s represent empty spaces. 
