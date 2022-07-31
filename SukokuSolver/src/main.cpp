@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 #include <string>
 #include <vector>
+#include <windows.h>
 
 int print_board(std::vector<int>& board) {
 	std::cout << "_______________________________________\n";
@@ -433,64 +434,9 @@ void check_spaces(std::vector<int>& board) {
 	}*/
 }
 
-int main() {
-	// Hard Puzzle
-	/*std::vector<int> game_board = { 
-		0, 0, 6,  5, 0, 0,  8, 4, 0, 
-		0, 9, 0,  0, 7, 0,  0, 0, 0,
-		3, 0, 0,  6, 0, 0,  0, 0, 9,
-
-		0, 0, 0,  0, 2, 3,  5, 0, 0,
-		0, 0, 0,  9, 0, 5,  0, 0, 0,
-		0, 0, 7,  8, 1, 0,  0, 0, 0,
-
-		4, 0, 0,  0, 0, 6,  0, 0, 2,
-		0, 0, 0,  0, 8, 0,  0, 1, 0,
-		0, 6, 1,  0, 0, 9,  3, 0, 0 };*/
-
-	// Hard Puzzle 2
-	/*std::vector<int> game_board = {
-		0, 0, 7,  0, 0, 4,  9, 0, 0,
-		0, 0, 0,  0, 0, 2,  7, 4, 0,
-		5, 0, 0,  1, 0, 8,  0, 0, 0,
-
-		2, 0, 9,  0, 0, 0,  0, 0, 7,
-		4, 0, 0,  0, 3, 0,  0, 0, 1,
-		8, 0, 0,  0, 0, 0,  3, 0, 2,
-
-		0, 0, 0,  8, 0, 3,  0, 0, 4,
-		0, 1, 5,  4, 0, 0,  0, 0, 0,
-		0, 0, 8,  7, 0, 0,  1, 0, 0 };*/
-
-	// Expert Puzzle
-	std::vector<int> game_board = {
-		0, 0, 5,  0, 2, 0,  6, 0, 0,
-		4, 9, 0,  8, 0, 5,  0, 0, 0,
-		0, 0, 0,  0, 0, 0,  0, 1, 0,
-
-		0, 4, 0,  1, 0, 0,  5, 0, 6,
-		0, 0, 0,  0, 3, 0,  0, 0, 0,
-		5, 0, 9,  0, 0, 7,  0, 8, 0,
-
-		0, 3, 0,  0, 0, 0,  0, 0, 0,
-		0, 0, 0,  3, 0, 8,  0, 9, 4,
-		0, 0, 8,  0, 4, 0,  7, 0, 0 };
-
-	// Easy Puzzle
-	/*std::vector<int> game_board = {
-		6, 0, 0,  0, 0, 9,  7, 4, 0,
-		0, 0, 2,  7, 0, 5,  1, 0, 8,
-		0, 0, 0,  6, 2, 1,  0, 0, 0,
-
-		0, 0, 9,  2, 0, 0,  4, 5, 0,
-		4, 0, 0,  0, 7, 0,  0, 0, 1,
-		0, 5, 7,  0, 0, 4,  6, 0, 0,
-
-		0, 0, 0,  9, 1, 6,  0, 0, 0,
-		9, 0, 1,  8, 0, 7,  3, 0, 0,
-		0, 8, 6,  4, 0, 0,  0, 0, 5 };*/
-
+void solve_gameboard(std::vector<int> game_board) {
 	while (true) {
+
 		int unfilled_boxes = print_board(game_board);
 		if (unfilled_boxes == 0) {
 			break;
@@ -503,4 +449,180 @@ int main() {
 		}
 		system("cls");
 	}
+}
+
+void create_custom_gameboard() {
+	std::vector<int> new_gameboard;
+	for (int i = 0; i < 81; i++)
+		new_gameboard.push_back(0);
+
+	print_board(new_gameboard);
+
+	// Get the numbers in the custom game board
+	int box_num = 0;
+	while (box_num < 81) {
+		char choice;
+		std::cin >> choice;
+		std::cout << std::endl;
+		box_num++;
+	}
+}
+
+void select_preset_gameboard() {
+	// Define Preset Game Boards
+	std::vector< std::vector<int> > preset_gameboards = {
+		{	// Hard 
+			0, 0, 6,  5, 0, 0,  8, 4, 0,
+			0, 9, 0,  0, 7, 0,  0, 0, 0,
+			3, 0, 0,  6, 0, 0,  0, 0, 9,
+
+			0, 0, 0,  0, 2, 3,  5, 0, 0,
+			0, 0, 0,  9, 0, 5,  0, 0, 0,
+			0, 0, 7,  8, 1, 0,  0, 0, 0,
+
+			4, 0, 0,  0, 0, 6,  0, 0, 2,
+			0, 0, 0,  0, 8, 0,  0, 1, 0,
+			0, 6, 1,  0, 0, 9,  3, 0, 0
+		},
+		{	// Hard
+			0, 0, 7,  0, 0, 4,  9, 0, 0,
+			0, 0, 0,  0, 0, 2,  7, 4, 0,
+			5, 0, 0,  1, 0, 8,  0, 0, 0,
+
+			2, 0, 9,  0, 0, 0,  0, 0, 7,
+			4, 0, 0,  0, 3, 0,  0, 0, 1,
+			8, 0, 0,  0, 0, 0,  3, 0, 2,
+
+			0, 0, 0,  8, 0, 3,  0, 0, 4,
+			0, 1, 5,  4, 0, 0,  0, 0, 0,
+			0, 0, 8,  7, 0, 0,  1, 0, 0
+		},
+		{	// Expert
+			0, 0, 5,  0, 2, 0,  6, 0, 0,
+			4, 9, 0,  8, 0, 5,  0, 0, 0,
+			0, 0, 0,  0, 0, 0,  0, 1, 0,
+
+			0, 4, 0,  1, 0, 0,  5, 0, 6,
+			0, 0, 0,  0, 3, 0,  0, 0, 0,
+			5, 0, 9,  0, 0, 7,  0, 8, 0,
+
+			0, 3, 0,  0, 0, 0,  0, 0, 0,
+			0, 0, 0,  3, 0, 8,  0, 9, 4,
+			0, 0, 8,  0, 4, 0,  7, 0, 0
+		},
+		{	// Expert
+			3, 0, 9,  0, 0, 6,  0, 0, 0,
+			4, 0, 0,  3, 0, 0,  1, 0, 0,
+			0, 0, 2,  7, 0, 0,  0, 0, 0,
+
+			9, 0, 1,  0, 0, 0,  0, 0, 7,
+			0, 0, 4,  5, 0, 7,  8, 0, 0,
+			8, 0, 0,  0, 0, 0,  3, 0, 9,
+
+			0, 0, 0,  0, 0, 8,  6, 0, 0,
+			0, 0, 5,  0, 0, 2,  0, 0, 8,
+			0, 0, 0,  9, 0, 0,  7, 0, 4 
+		},
+		{	// Easy
+			6, 0, 0,  0, 0, 9,  7, 4, 0,
+			0, 0, 2,  7, 0, 5,  1, 0, 8,
+			0, 0, 0,  6, 2, 1,  0, 0, 0,
+
+			0, 0, 9,  2, 0, 0,  4, 5, 0,
+			4, 0, 0,  0, 7, 0,  0, 0, 1,
+			0, 5, 7,  0, 0, 4,  6, 0, 0,
+
+			0, 0, 0,  9, 1, 6,  0, 0, 0,
+			9, 0, 1,  8, 0, 7,  3, 0, 0,
+			0, 8, 6,  4, 0, 0,  0, 0, 5
+		}
+	};
+	unsigned int board_selection = 0;
+
+	while (true) {
+		// Display current preset gameboard selection
+		std::cout << "Select Preset Gameboard\n" << std::endl;
+		std::cout << "Preset #" << board_selection + 1 << std::endl;
+		print_board(preset_gameboards[board_selection]);
+		std::cout << "\n<<        Select        Back         >>" << std::endl;
+		std::cout << "1           2            3            4\n" << std::endl;
+		std::cout << ">> ";
+
+		// Get menu choice from user
+		char choice;
+		std::cin >> choice;
+		std::cout << std::endl;
+
+		switch (choice) {
+		case '1':
+			system("cls");
+			if (board_selection <= 0)
+				board_selection = preset_gameboards.size() - 1;
+			else
+				board_selection--;
+			
+			break;
+		case '2':
+			system("cls");
+			solve_gameboard(preset_gameboards[board_selection]);
+			return;
+			break;
+		case '3':
+			system("cls");
+			return;
+			break;
+		case '4':
+			system("cls");
+			if (board_selection >= preset_gameboards.size() - 1)
+				board_selection = 0;
+			else
+				board_selection++;
+
+			break;
+		default:
+			system("cls");
+			std::cout << "Invalid Menu Option.\n" << std::endl;
+			break;
+		}
+	}
+}
+
+void main_menu() {
+	while (true) {
+		// Print menu
+		std::cout << "Main Menu" << std::endl;
+		std::cout << "1. Custom Game Board" << std::endl;
+		std::cout << "2. Preset Game Board" << std::endl;
+		std::cout << "3. Quit\n" << std::endl;
+		std::cout << ">> ";
+
+		// Get menu choice from user
+		char choice;
+		std::cin >> choice;
+		std::cout << std::endl;
+
+		// Handle the specified choice. Anything but 1, 2, or 3 returns an invalid menu option
+		switch (choice) {
+		case '1':
+			system("cls");
+			create_custom_gameboard();
+			break;
+		case '2':
+			system("cls");
+			select_preset_gameboard();
+			break;
+		case '3':
+			std::cout << "Quitting..." << std::endl;
+			return;
+			break;
+		default:
+			system("cls");
+			std::cout << "Invalid Menu Option.\n" << std::endl;
+			break;
+		}
+	}
+}
+
+int main() {
+	main_menu();
 }
