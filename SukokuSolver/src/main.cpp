@@ -456,16 +456,50 @@ void create_custom_gameboard() {
 	for (int i = 0; i < 81; i++)
 		new_gameboard.push_back(0);
 
+	std::cout << "Enter a number from 1-9. Enter 0 for an empty space and - to go back a box." << std::endl;
 	print_board(new_gameboard);
 
 	// Get the numbers in the custom game board
 	int box_num = 0;
 	while (box_num < 81) {
+		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+		int x_pos = (box_num % 9) * 4 + 2 + (box_num / 3) - (box_num / 9) * 3;
+		int y_pos = (box_num / 9) * 2 + 2;
+		COORD pos = {x_pos, y_pos};
+		SetConsoleCursorPosition(hConsole, pos);
+
 		char choice;
-		std::cin >> choice;
-		std::cout << std::endl;
-		box_num++;
+		int int_choice = -1;
+
+		while (true) {
+			SetConsoleCursorPosition(hConsole, pos);
+			std::cin.get(choice);
+			int_choice = choice - '0';
+			if (choice == '-') {
+				box_num--;
+				break;
+			}
+			else if (int_choice >= 0 && int_choice <= 9) {
+				new_gameboard[box_num] = int_choice;
+				box_num++;
+
+				std::cout << "Enter a number from 1-9. Enter - to go back a box." << std::endl;
+				system("cls");
+				print_board(new_gameboard);
+				break;
+			}
+			else {
+				system("cls");
+				std::cout << "Enter a number from 1-9. Enter - to go back a box." << std::endl;
+				print_board(new_gameboard);
+				SetConsoleCursorPosition(hConsole, pos);
+			}
+		}
 	}
+
+	system("cls");
+	solve_gameboard(new_gameboard);
+	return;
 }
 
 void select_preset_gameboard() {
@@ -566,11 +600,9 @@ void select_preset_gameboard() {
 			system("cls");
 			solve_gameboard(preset_gameboards[board_selection]);
 			return;
-			break;
 		case '3':
 			system("cls");
 			return;
-			break;
 		case '4':
 			system("cls");
 			if (board_selection >= preset_gameboards.size() - 1)
