@@ -108,6 +108,72 @@ void check_pairs(Gameboard& gameboard) {
 	gameboard.set_possible_values(p_values);
 }
 
+void check_row_boxes(Gameboard& gameboard) {
+	// If a possible value in a row or column only appears in cells in one box group, then that p value has to appear in that row or column in that box.
+	// So, the p value is removed from the other cells in the box outside of that row or column. 
+
+	std::vector< std::vector<int> > p_values = gameboard.get_possible_values();
+
+	// Loop each row and column
+	for (int i = 0; i < 9; i++) {
+
+		// Loop each p value (1-9)
+		for (int j = 0; j < 9; j++) {
+			std::vector<int> boxes;
+			
+			// Loop each cell in the row
+			for (int k = 0; k < 9; k++) {
+				int index = i * 9 + k;
+
+				// Check if the p value appears in the box, and if it does check if the cell's box is already added to the boxes vector
+				if (std::find(p_values[index].begin(), p_values[index].end(), j) != p_values[index].end()) {
+					Positions position = gameboard.get_positions(index);
+					if (std::find(boxes.begin(), boxes.end(), position.box) == boxes.end())
+						boxes.push_back(position.box);
+				}
+			}
+
+			// If the boxes vector only found the p value appearing in 1 box in the row, remove the p value from all the cells in the box that are not in that row.
+			if (boxes.size() == 1) {
+				for (int k = 0; k < 9; k++) {
+					int index = boxes[0] * 3 + 18 * (boxes[0] / 3) + (k / 3) * 9 + (k % 3);
+					Positions positions = gameboard.get_positions(index);
+					if (positions.row != i) {
+						p_values[index].erase(std::remove(p_values[index].begin(), p_values[index].end(), j), p_values[index].end());
+					}
+				}
+			}
+
+			boxes = {};
+			// Loop each cell in the column
+			for (int k = 0; k < 9; k++) {
+				int index = i + k * 9;
+
+				// Check if the p value appears in the box, and if it does check if the cell's box is already added to the boxes vector
+				if (std::find(p_values[index].begin(), p_values[index].end(), j) != p_values[index].end()) {
+					Positions position = gameboard.get_positions(index);
+					if (std::find(boxes.begin(), boxes.end(), position.box) == boxes.end())
+						boxes.push_back(position.box);
+				}
+			}
+
+			// If the boxes vector only found the p value appearing in 1 box in the column, remove the p value from all the cells in the box that are not in that column.
+			if (boxes.size() == 1) {
+				for (int k = 0; k < 9; k++) {
+					int index = boxes[0] * 3 + 18 * (boxes[0] / 3) + (k / 3) * 9 + (k % 3);
+					Positions positions = gameboard.get_positions(index);
+					if (positions.column != i) {
+						p_values[index].erase(std::remove(p_values[index].begin(), p_values[index].end(), j), p_values[index].end());
+					}
+				}
+			}
+		}
+	}
+
+	// Set the possible values of the gameboard to the new p values 
+	gameboard.set_possible_values(p_values);
+}
+
 void check_spaces(Gameboard& gameboard) {
 	// Reduce the number of possible values for each cell using variety of strategy, filling in values when 1 possible value remains.
 	for (int i = 0; i < 81; i++) {
@@ -124,6 +190,8 @@ void check_spaces(Gameboard& gameboard) {
 		}
 	}
 	check_pairs(gameboard);
+	check_row_boxes(gameboard);
+
 	gameboard.update_groups();
 }
 
