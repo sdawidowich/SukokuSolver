@@ -46,7 +46,7 @@ bool check_base_values(Gameboard& gameboard, int index) {
 	return found_value;
 }
 
-void check_group_pairs(std::vector< std::vector<int> >& p_values, int sIndex, int ref, int increment, Group group) {
+void check_naked_pair_group(std::vector< std::vector<int> >& p_values, int sIndex, int ref, int increment, Group group) {
 	int ref_cell = sIndex + ref * increment;
 	if (group == Group::BOX)
 		ref_cell = sIndex + (ref / 3) * 9 + ref % 3;
@@ -82,7 +82,7 @@ void check_group_pairs(std::vector< std::vector<int> >& p_values, int sIndex, in
 	}
 }
 
-void check_pairs(Gameboard& gameboard) {
+void check_naked_pairs(Gameboard& gameboard) {
 	// Check each group for lone pairs of possible values (etc. 3 and 8 as the only possible values for a cell). 
 	// If 2 cells in a group have the same pair, those possible values are removed from all the other cells' possible values. 
 	// Works with set of 3 possible values with 3 cells, 4 values with 4 cells, etc.
@@ -96,11 +96,103 @@ void check_pairs(Gameboard& gameboard) {
 		for (int j = 0; j < 9; j++) {
 
 			// Check row group where sIndex is the starting index of the group and increment is amount to next cell in the group
-			check_group_pairs(p_values, i * 9, j, 1, Group::ROW);
+			check_naked_pair_group(p_values, i * 9, j, 1, Group::ROW);
 			// Check column group
-			check_group_pairs(p_values, i, j, 9, Group::COLUMN);
+			check_naked_pair_group(p_values, i, j, 9, Group::COLUMN);
 			// Check box group
-			check_group_pairs(p_values, i * 3 + 18 * (i / 3), j, 0, Group::BOX);
+			check_naked_pair_group(p_values, i * 3 + 18 * (i / 3), j, 0, Group::BOX);
+		}
+	}
+
+	// Set the possible values of the gameboard to the new p values 
+	gameboard.set_possible_values(p_values);
+}
+
+void check_hidden_pair_group(std::vector< std::vector<int> >& p_values, std::vector< std::vector<int> >& group_appearances, int p_value, int cell, int index) {
+	if (std::find(p_values[index].begin(), p_values[index].end(), p_value) != p_values[index].end()) {
+		group_appearances[p_value-1].push_back(cell);
+	}
+}
+
+void check_hidden_pairs(Gameboard& gameboard) {
+	// Check each group for cells with matching pairs of values that are only possibilities in those cells. 
+	// (Ex. 3, 6, 7, 9 in one cell and 4, 7, 9 in another. If 7 and 9 only appear in those 2 cells, remove all other possible values from those cells.
+
+	std::vector< std::vector<int> > p_values = gameboard.get_possible_values();
+
+	// Loop each group
+	for (int i = 0; i < 9; i++) {
+
+		std::vector< std::vector<int> > row_appearances(9);
+		std::vector< std::vector<int> > column_appearances(9);
+		std::vector< std::vector<int> > box_appearances(9);
+		// Loop each p value (1-9)
+		for (int j = 1; j < 10; j++) {
+
+			// Loop each cell in each group
+			for (int k = 0; k < 9; k++) {
+
+				// Check k cell in row if p value is a possible value
+				check_hidden_pair_group(p_values, row_appearances, j, k, i * 9 + k);
+				// Check k cell in column
+				check_hidden_pair_group(p_values, column_appearances, j, k, i + k * 9);
+				// Check k cell in box
+				check_hidden_pair_group(p_values, box_appearances, j, k, i * 3 + 18 * (i / 3) + (k / 3) * 9 + k % 3);
+			}
+		}
+
+		// Loop through each p value's cell appearances in each group
+		for (int j = 0; j < 9; j++) {
+			// Check how many p values' cell appearances match the jth p value's cell appearances (Ex. Value 1 is possible in cell 7 and 9 and value 5 is possible is cell 7 and 9)
+			std::vector<int> matches;
+			for (int k = 0; k < 9; k++) {
+				if (row_appearances[j] == row_appearances[k]) {
+					matches.push_back(k+1);
+				}
+			}
+			// If the number of cell appearances of p value j is the same as the number of p values with identical cell appearances, then erase p value j from all other p value lists.
+			if (matches.size() == row_appearances[j].size()) {
+				for (int k = 0; k < 9; k++) {
+					int index = i * 9 + k;
+					if (std::find(row_appearances[j].begin(), row_appearances[j].end(), k) != row_appearances[j].end()) {
+						p_values[index] = matches;
+					}
+				}
+			}
+
+			// Check how many p values' cell appearances match the jth p value's cell appearances (Ex. Value 1 is possible in cell 7 and 9 and value 5 is possible is cell 7 and 9)
+			matches = {};
+			for (int k = 0; k < 9; k++) {
+				if (column_appearances[j] == column_appearances[k]) {
+					matches.push_back(k + 1);
+				}
+			}
+			// If the number of cell appearances of p value j is the same as the number of p values with identical cell appearances, then erase p value j from all other p value lists.
+			if (matches.size() == column_appearances[j].size()) {
+				for (int k = 0; k < 9; k++) {
+					int index = i + 9 * k;
+					if (std::find(column_appearances[j].begin(), column_appearances[j].end(), k) != column_appearances[j].end()) {
+						p_values[index] = matches;
+					}
+				}
+			}
+
+			// Check how many p values' cell appearances match the jth p value's cell appearances (Ex. Value 1 is possible in cell 7 and 9 and value 5 is possible is cell 7 and 9)
+			matches = {};
+			for (int k = 0; k < 9; k++) {
+				if (box_appearances[j] == box_appearances[k]) {
+					matches.push_back(k + 1);
+				}
+			}
+			// If the number of cell appearances of p value j is the same as the number of p values with identical cell appearances, then erase p value j from all other p value lists.
+			if (matches.size() == box_appearances[j].size()) {
+				for (int k = 0; k < 9; k++) {
+					int index = i * 3 + 18 * (i / 3) + (k / 3) * 9 + (k % 3);
+					if (std::find(box_appearances[j].begin(), box_appearances[j].end(), k) != box_appearances[j].end()) {
+						p_values[index] = matches;
+					}
+				}
+			}
 		}
 	}
 
@@ -118,7 +210,7 @@ void check_row_boxes(Gameboard& gameboard) {
 	for (int i = 0; i < 9; i++) {
 
 		// Loop each p value (1-9)
-		for (int j = 0; j < 9; j++) {
+		for (int j = 1; j < 10; j++) {
 			std::vector<int> boxes;
 			
 			// Loop each cell in the row
@@ -189,7 +281,8 @@ void check_spaces(Gameboard& gameboard) {
 			gameboard.set_possible_values(p_values);
 		}
 	}
-	check_pairs(gameboard);
+	check_naked_pairs(gameboard);
+	check_hidden_pairs(gameboard);
 	check_row_boxes(gameboard);
 
 	gameboard.update_groups();
