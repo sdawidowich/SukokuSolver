@@ -46,6 +46,8 @@ bool check_base_values(Gameboard& gameboard, int index) {
 	return found_value;
 }
 
+// Check Naked Pairs
+
 void check_naked_pair_group(std::vector< std::vector<int> >& p_values, int sIndex, int ref, int increment, Group group) {
 	int ref_cell = sIndex + ref * increment;
 	if (group == Group::BOX)
@@ -108,9 +110,36 @@ void check_naked_pairs(Gameboard& gameboard) {
 	gameboard.set_possible_values(p_values);
 }
 
+// Check Hidden Pairs
+
 void check_hidden_pair_group(std::vector< std::vector<int> >& p_values, std::vector< std::vector<int> >& group_appearances, int p_value, int cell, int index) {
 	if (std::find(p_values[index].begin(), p_values[index].end(), p_value) != p_values[index].end()) {
 		group_appearances[p_value-1].push_back(cell);
+	}
+}
+
+void check_hidden_pair_matches(std::vector<std::vector<int>>& p_values, std::vector<std::vector<int>>& group_appearances, int i, int j, Group group) {
+	// Get all the p values who have the same cell appearances as the j p value in the row
+	std::vector<int> matches;
+	for (int k = 0; k < 9; k++) {
+		if (group_appearances[j] == group_appearances[k]) {
+			matches.push_back(k + 1);
+		}
+	}
+	// If p value j's number of cell appearances matches the number of p values that have the same cell appearances as j, set the p values of those cells to only the matching p values.
+	if (matches.size() == group_appearances[j].size()) {
+		for (int k = 0; k < 9; k++) {
+			// Get cell index
+			int index = i * 9 + k;
+			if (group == Group::COLUMN)
+				index = i + 9 * k;
+			else if (group == Group::BOX)
+				index = i * 3 + 18 * (i / 3) + (k / 3) * 9 + (k % 3);
+
+			if (std::find(group_appearances[j].begin(), group_appearances[j].end(), k) != group_appearances[j].end()) {
+				p_values[index] = matches;
+			}
+		}
 	}
 }
 
@@ -143,61 +172,48 @@ void check_hidden_pairs(Gameboard& gameboard) {
 
 		// Loop through each p value's cell appearances in each group
 		for (int j = 0; j < 9; j++) {
-			// Check how many p values' cell appearances match the jth p value's cell appearances (Ex. Value 1 is possible in cell 7 and 9 and value 5 is possible is cell 7 and 9)
-			std::vector<int> matches;
-			for (int k = 0; k < 9; k++) {
-				if (row_appearances[j] == row_appearances[k]) {
-					matches.push_back(k+1);
-				}
-			}
-			// If the number of cell appearances of p value j is the same as the number of p values with identical cell appearances, then erase p value j from all other p value lists.
-			if (matches.size() == row_appearances[j].size()) {
-				for (int k = 0; k < 9; k++) {
-					int index = i * 9 + k;
-					if (std::find(row_appearances[j].begin(), row_appearances[j].end(), k) != row_appearances[j].end()) {
-						p_values[index] = matches;
-					}
-				}
-			}
+			// Check row
+			check_hidden_pair_matches(p_values, row_appearances, i, j, Group::ROW);
 
-			// Check how many p values' cell appearances match the jth p value's cell appearances (Ex. Value 1 is possible in cell 7 and 9 and value 5 is possible is cell 7 and 9)
-			matches = {};
-			for (int k = 0; k < 9; k++) {
-				if (column_appearances[j] == column_appearances[k]) {
-					matches.push_back(k + 1);
-				}
-			}
-			// If the number of cell appearances of p value j is the same as the number of p values with identical cell appearances, then erase p value j from all other p value lists.
-			if (matches.size() == column_appearances[j].size()) {
-				for (int k = 0; k < 9; k++) {
-					int index = i + 9 * k;
-					if (std::find(column_appearances[j].begin(), column_appearances[j].end(), k) != column_appearances[j].end()) {
-						p_values[index] = matches;
-					}
-				}
-			}
+			// Check row
+			check_hidden_pair_matches(p_values, column_appearances, i, j, Group::COLUMN);
 
-			// Check how many p values' cell appearances match the jth p value's cell appearances (Ex. Value 1 is possible in cell 7 and 9 and value 5 is possible is cell 7 and 9)
-			matches = {};
-			for (int k = 0; k < 9; k++) {
-				if (box_appearances[j] == box_appearances[k]) {
-					matches.push_back(k + 1);
-				}
-			}
-			// If the number of cell appearances of p value j is the same as the number of p values with identical cell appearances, then erase p value j from all other p value lists.
-			if (matches.size() == box_appearances[j].size()) {
-				for (int k = 0; k < 9; k++) {
-					int index = i * 3 + 18 * (i / 3) + (k / 3) * 9 + (k % 3);
-					if (std::find(box_appearances[j].begin(), box_appearances[j].end(), k) != box_appearances[j].end()) {
-						p_values[index] = matches;
-					}
-				}
-			}
+			// Check row
+			check_hidden_pair_matches(p_values, box_appearances, i, j, Group::BOX);
 		}
 	}
 
 	// Set the possible values of the gameboard to the new p values 
 	gameboard.set_possible_values(p_values);
+}
+
+// Check Row/Column Boxes
+
+void check_row_boxes_group(Gameboard& gameboard, std::vector<std::vector<int>>& p_values, int& i, int& j, Group group) {
+	std::vector<int> boxes;
+
+	// Loop each cell in the group
+	for (int k = 0; k < 9; k++) {
+		int index = (group == Group::ROW) ? i * 9 + k : i + 9 * k;
+
+		// Check if the p value appears in the box, and if it does check if the cell's box is already added to the boxes vector
+		if (std::find(p_values[index].begin(), p_values[index].end(), j) != p_values[index].end()) {
+			Positions position = gameboard.get_positions(index);
+			if (std::find(boxes.begin(), boxes.end(), position.box) == boxes.end())
+				boxes.push_back(position.box);
+		}
+	}
+	// If the boxes vector only found the p value appearing in 1 box in the row, remove the p value from all the cells in the box that are not in that row.
+	if (boxes.size() == 1) {
+		for (int k = 0; k < 9; k++) {
+			int index = boxes[0] * 3 + 18 * (boxes[0] / 3) + (k / 3) * 9 + (k % 3);
+			int group_position = (group == Group::ROW) ? gameboard.get_positions(index).row : gameboard.get_positions(index).column;
+
+			if (group_position != i) {
+				p_values[index].erase(std::remove(p_values[index].begin(), p_values[index].end(), j), p_values[index].end());
+			}
+		}
+	}
 }
 
 void check_row_boxes(Gameboard& gameboard) {
@@ -211,54 +227,11 @@ void check_row_boxes(Gameboard& gameboard) {
 
 		// Loop each p value (1-9)
 		for (int j = 1; j < 10; j++) {
-			std::vector<int> boxes;
-			
-			// Loop each cell in the row
-			for (int k = 0; k < 9; k++) {
-				int index = i * 9 + k;
+			// Check row
+			check_row_boxes_group(gameboard, p_values, i, j, Group::ROW);
 
-				// Check if the p value appears in the box, and if it does check if the cell's box is already added to the boxes vector
-				if (std::find(p_values[index].begin(), p_values[index].end(), j) != p_values[index].end()) {
-					Positions position = gameboard.get_positions(index);
-					if (std::find(boxes.begin(), boxes.end(), position.box) == boxes.end())
-						boxes.push_back(position.box);
-				}
-			}
-
-			// If the boxes vector only found the p value appearing in 1 box in the row, remove the p value from all the cells in the box that are not in that row.
-			if (boxes.size() == 1) {
-				for (int k = 0; k < 9; k++) {
-					int index = boxes[0] * 3 + 18 * (boxes[0] / 3) + (k / 3) * 9 + (k % 3);
-					Positions positions = gameboard.get_positions(index);
-					if (positions.row != i) {
-						p_values[index].erase(std::remove(p_values[index].begin(), p_values[index].end(), j), p_values[index].end());
-					}
-				}
-			}
-
-			boxes = {};
-			// Loop each cell in the column
-			for (int k = 0; k < 9; k++) {
-				int index = i + k * 9;
-
-				// Check if the p value appears in the box, and if it does check if the cell's box is already added to the boxes vector
-				if (std::find(p_values[index].begin(), p_values[index].end(), j) != p_values[index].end()) {
-					Positions position = gameboard.get_positions(index);
-					if (std::find(boxes.begin(), boxes.end(), position.box) == boxes.end())
-						boxes.push_back(position.box);
-				}
-			}
-
-			// If the boxes vector only found the p value appearing in 1 box in the column, remove the p value from all the cells in the box that are not in that column.
-			if (boxes.size() == 1) {
-				for (int k = 0; k < 9; k++) {
-					int index = boxes[0] * 3 + 18 * (boxes[0] / 3) + (k / 3) * 9 + (k % 3);
-					Positions positions = gameboard.get_positions(index);
-					if (positions.column != i) {
-						p_values[index].erase(std::remove(p_values[index].begin(), p_values[index].end(), j), p_values[index].end());
-					}
-				}
-			}
+			// Check column
+			check_row_boxes_group(gameboard, p_values, i, j, Group::COLUMN);
 		}
 	}
 
@@ -267,7 +240,7 @@ void check_row_boxes(Gameboard& gameboard) {
 }
 
 void check_spaces(Gameboard& gameboard) {
-	// Reduce the number of possible values for each cell using variety of strategy, filling in values when 1 possible value remains.
+	// Reduce the number of possible values for each cell using a variety of strategies, filling in values when 1 possible value remains.
 	for (int i = 0; i < 81; i++) {
 		// If cell is empty, reduce the number of possible values, else set the possible values equal to the known value of the cell
 		if (gameboard.get_board()[i] == 0) {
@@ -281,6 +254,7 @@ void check_spaces(Gameboard& gameboard) {
 			gameboard.set_possible_values(p_values);
 		}
 	}
+
 	check_naked_pairs(gameboard);
 	check_hidden_pairs(gameboard);
 	check_row_boxes(gameboard);
@@ -288,23 +262,21 @@ void check_spaces(Gameboard& gameboard) {
 	gameboard.update_groups();
 }
 
-void solve_gameboard(Gameboard& gameboard) {
-	while (true) {
-		int unfilled_boxes = gameboard.print_board();
-		if (unfilled_boxes == 0) {
-			break;
-		}
+void solve_gameboard_strategy(Gameboard& gameboard) {
+	int unfilled_cells = gameboard.print_board();
 
+	// Check the spaces for possible values until 0 cells are unfilled.
+	while (unfilled_cells > 0) {
 		check_spaces(gameboard);
 		
-		// Pause for 1 sec
-		using namespace std::this_thread;     // sleep_for, sleep_until
+		// Pause for 0.75 sec
+		using namespace std::this_thread;     // sleep_until
 		using namespace std::chrono_literals; // ns, us, ms, s, h, etc.
 		using std::chrono::system_clock;
 
-		sleep_for(10ns);
-		sleep_until(system_clock::now() + 1s);
+		sleep_until(system_clock::now() + 0.75s);
 
 		system("cls");
+		unfilled_cells = gameboard.print_board();
 	}
 }

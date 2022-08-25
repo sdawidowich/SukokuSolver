@@ -14,11 +14,12 @@ void create_custom_gameboard() {
 	new_gameboard.print_board();
 
 	// Get the numbers in the custom game board
-	int box_num = 0;
-	while (box_num < 81) {
+	int cell_num = 0;
+	while (cell_num < 81) {
+		// Set cursor position to the right cell number
 		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-		short x_pos = (box_num % 9) * 4 + 2 + (box_num / 3) - (box_num / 9) * 3;
-		short y_pos = (box_num / 9) * 2 + 2;
+		short x_pos = (cell_num % 9) * 4 + 2 + (cell_num / 3) - (cell_num / 9) * 3;
+		short y_pos = (cell_num / 9) * 2 + 2;
 		COORD pos = {x_pos, y_pos};
 		SetConsoleCursorPosition(hConsole, pos);
 
@@ -30,12 +31,12 @@ void create_custom_gameboard() {
 			std::cin.get(choice);
 			int_choice = choice - '0';
 			if (choice == '-') {
-				box_num--;
+				cell_num--;
 				break;
 			}
 			else if (int_choice >= 0 && int_choice <= 9) {
-				new_gameboard.set_cell_value(box_num, int_choice);
-				box_num++;
+				new_gameboard.set_cell_value(cell_num, int_choice);
+				cell_num++;
 
 				system("cls");
 				std::cout << "Enter a number from 1-9. Enter - to go back a box." << std::endl;
@@ -50,7 +51,7 @@ void create_custom_gameboard() {
 			}
 		}
 
-		if (box_num >= 81) {
+		if (cell_num >= 81) {
 			while (true) {
 				std::cout << "Enter DONE to finish entering your gameboard or enter - to continue editing your gameboard." << std::endl;
 				std::string selection;
@@ -62,7 +63,7 @@ void create_custom_gameboard() {
 					break;
 				}
 				else if (selection == "-") {
-					box_num--;
+					cell_num--;
 
 					system("cls");
 					std::cout << "Enter a number from 1-9. Enter - to go back a box." << std::endl;
@@ -78,7 +79,7 @@ void create_custom_gameboard() {
 	}
 
 	system("cls");
-	solve_gameboard(new_gameboard);
+	solve_gameboard_strategy(new_gameboard);
 	return;
 }
 
@@ -168,6 +169,7 @@ void select_preset_gameboard() {
 		std::cin >> choice;
 		std::cout << std::endl;
 
+		// Handle the specified choice. Anything but 1, 2, 3, or 4 returns an invalid menu option
 		switch (choice) {
 		case '1':
 			system("cls");
@@ -179,7 +181,7 @@ void select_preset_gameboard() {
 			break;
 		case '2':
 			system("cls");
-			solve_gameboard(gameboard_selection);
+			solve_gameboard_backtracking(gameboard_selection);
 			return;
 		case '3':
 			system("cls");
