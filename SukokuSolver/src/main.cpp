@@ -70,9 +70,13 @@ void create_custom_gameboard() {
 			SetConsoleCursorPosition(hConsole, pos);
 			std::cin.get(choice);
 			int_choice = choice - '0';
-			if (choice == '-') {
+			if (choice == '-' && cell_num > 0) {
 				cell_num--;
 				break;
+			}
+			else if (choice == '-' && cell_num <= 0) {
+				system("cls");
+				return;
 			}
 			else if (int_choice >= 0 && int_choice <= 9) {
 				new_gameboard.set_cell_value(cell_num, int_choice);
