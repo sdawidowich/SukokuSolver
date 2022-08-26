@@ -269,14 +269,21 @@ void solve_gameboard_strategy(Gameboard& gameboard) {
 	while (unfilled_cells > 0) {
 		check_spaces(gameboard);
 		
-		// Pause for 0.75 sec
+		// Pause for 0.2 sec
 		using namespace std::this_thread;     // sleep_until
 		using namespace std::chrono_literals; // ns, us, ms, s, h, etc.
 		using std::chrono::system_clock;
 
-		sleep_until(system_clock::now() + 0.75s);
+		sleep_until(system_clock::now() + 0.2s);
 
 		system("cls");
 		unfilled_cells = gameboard.print_board();
 	}
+	
+	std::cout << "Enter any key to continue.\n\n>> ";
+	std::string input;
+	std::cin.clear();
+	std::cin.ignore();
+	std::getline(std::cin, input);
+	system("cls");
 }

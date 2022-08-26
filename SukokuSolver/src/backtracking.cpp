@@ -70,4 +70,11 @@ void solve_gameboard_backtracking(Gameboard& gameboard) {
 
 	system("cls");
 	gameboard.print_board();
+
+	std::cout << "Enter any key to continue.\n\n>> ";
+	std::string input;
+	std::cin.clear();
+	std::cin.ignore();
+	std::getline(std::cin, input);
+	system("cls");
 }

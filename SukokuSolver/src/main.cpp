@@ -7,6 +7,46 @@
 #include "strategies.h"
 #include "backtracking.h"
 
+void select_method(Gameboard& gameboard) {
+	while (true) {
+		// Print menu
+		std::cout << "Select Solving Method" << std::endl;
+		std::cout << "1. Strategy Based Algorithm" << std::endl;
+		std::cout << "2. Backtracking Algorithm" << std::endl;
+		std::cout << "3. Back" << std::endl;
+		std::cout << "4. Quit\n" << std::endl;
+		std::cout << ">> ";
+
+		// Get menu choice from user
+		char choice;
+		std::cin >> choice;
+		std::cout << std::endl;
+
+		// Handle the specified choice. Anything but 1, 2, or 3 returns an invalid menu option
+		switch (choice) {
+		case '1':
+			system("cls");
+			solve_gameboard_strategy(gameboard);
+			return;
+		case '2':
+			system("cls");
+			solve_gameboard_backtracking(gameboard);
+			return;
+		case '3':
+			system("cls");
+			return;
+			break;
+		case '4':
+			std::cout << "Quitting..." << std::endl;
+			exit(0);
+		default:
+			system("cls");
+			std::cout << "Invalid Menu Option.\n" << std::endl;
+			break;
+		}
+	}
+}
+
 void create_custom_gameboard() {
 	Gameboard new_gameboard;
 
@@ -79,7 +119,7 @@ void create_custom_gameboard() {
 	}
 
 	system("cls");
-	solve_gameboard_strategy(new_gameboard);
+	select_method(new_gameboard);
 	return;
 }
 
@@ -181,8 +221,8 @@ void select_preset_gameboard() {
 			break;
 		case '2':
 			system("cls");
-			solve_gameboard_backtracking(gameboard_selection);
-			return;
+			select_method(gameboard_selection);
+			break;
 		case '3':
 			system("cls");
 			return;
