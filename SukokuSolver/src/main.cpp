@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 #include <string>
 #include <vector>
+#include <random>
 #include <windows.h>
 
 #include "gameboard.h"
@@ -298,13 +299,93 @@ void select_preset_gameboard() {
 	}
 }
 
+bool fill_cell(Gameboard& gameboard, std::random_device& rd, std::mt19937& engine) {
+	// Get next empty cell index. If returns -1, no empty cells so board is solved.
+	int cell_num = find_empty_cell(gameboard);
+
+	if (cell_num == -1) 
+		return true;
+
+	// Update the row, column, and box gameboard vectors, get the basic possible values for the cell, and shuffle those values in a new vector
+	gameboard.update_groups();
+	check_base_values(gameboard, cell_num);
+	auto cell_p_values = gameboard.get_possible_values()[cell_num];
+	std::shuffle(std::begin(cell_p_values), std::end(cell_p_values), engine);
+
+	// Loop through the possible values so if it needs to backtrack, the next possible value is used. 
+	for (auto p_value : cell_p_values) {
+		gameboard.set_cell_value(cell_num, p_value);
+		if (fill_cell(gameboard, rd, engine)) {
+			return true;
+		}
+	}
+
+	// If pass loop, no value is possible, so reset the cell's possible values, set the cell value to empty, and backtrack to the previous cell by returning false
+	auto p_values = gameboard.get_possible_values();
+	p_values[cell_num] = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+	gameboard.set_cell_value(cell_num, 0);
+	gameboard.set_possible_values(p_values);
+	return false;
+}
+
+Gameboard generate_random_gameboard() {
+	Gameboard new_gameboard;
+
+	std::random_device rd;
+	std::mt19937 engine{ rd() };
+
+	// Backtracking random cell filler
+	fill_cell(new_gameboard, rd, engine);
+
+	return new_gameboard;
+}
+
+void select_random_gameboard() {
+	Gameboard gameboard = generate_random_gameboard();
+
+	while (true) {
+		// Display current preset gameboard selection
+		std::cout << "Select Random Gameboard\n" << std::endl;
+
+		gameboard.print_board();
+		std::cout << "\nSelect      Back         New" << std::endl;
+		std::cout << "1           2            3\n" << std::endl;
+		std::cout << ">> ";
+
+		// Get menu choice from user
+		char choice;
+		std::cin >> choice;
+		std::cout << std::endl;
+
+		// Handle the specified choice. Anything but 1, 2, 3, or 4 returns an invalid menu option
+		switch (choice) {
+		case '1':
+			system("cls");
+			select_method(gameboard);
+			break;
+		case '2':
+			system("cls");
+			return;
+		case '3':
+			system("cls");
+			gameboard = generate_random_gameboard();
+			break;
+		default:
+			system("cls");
+			std::cout << "Invalid Menu Option.\n" << std::endl;
+			break;
+		}
+	}
+}
+
 void main_menu() {
 	while (true) {
 		// Print menu
 		std::cout << "Main Menu" << std::endl;
 		std::cout << "1. Custom Game Board" << std::endl;
 		std::cout << "2. Preset Game Board" << std::endl;
-		std::cout << "3. Quit\n" << std::endl;
+		std::cout << "3. Random Game Board" << std::endl;
+		std::cout << "4. Quit\n" << std::endl;
 		std::cout << ">> ";
 
 		// Get menu choice from user
@@ -323,6 +404,10 @@ void main_menu() {
 			select_preset_gameboard();
 			break;
 		case '3':
+			system("cls");
+			select_random_gameboard();
+			break;
+		case '4':
 			std::cout << "Quitting..." << std::endl;
 			return;
 			break;

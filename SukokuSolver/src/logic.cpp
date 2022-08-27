@@ -18,26 +18,19 @@ bool check_base_values(Gameboard& gameboard, int index) {
 	for (int j = 0; j < 9; j++) {
 		// Checks if the value of the cell for each group in the current iteration is in the cell's possible values and if it is, the value is removed from the possible values.
 		int r_value = gameboard.get_rows()[gameboard_positions.row][j];
-		if (std::find(p_values[index].begin(), p_values[index].end(), r_value) != p_values[index].end()) {
-			p_values[index].erase(std::remove(p_values[index].begin(), p_values[index].end(), r_value), p_values[index].end());
-		}
-
+		p_values[index].erase(std::remove(p_values[index].begin(), p_values[index].end(), r_value), p_values[index].end());
+		
 		int c_value = gameboard.get_columns()[gameboard_positions.column][j];
-		if (std::find(p_values[index].begin(), p_values[index].end(), c_value) != p_values[index].end()) {
-			p_values[index].erase(std::remove(p_values[index].begin(), p_values[index].end(), c_value), p_values[index].end());
-		}
+		p_values[index].erase(std::remove(p_values[index].begin(), p_values[index].end(), c_value), p_values[index].end());
 
 		int b_value = gameboard.get_boxes()[gameboard_positions.box][j];
-		if (std::find(p_values[index].begin(), p_values[index].end(), b_value) != p_values[index].end()) {
-			p_values[index].erase(std::remove(p_values[index].begin(), p_values[index].end(), b_value), p_values[index].end());
-		}
+		p_values[index].erase(std::remove(p_values[index].begin(), p_values[index].end(), b_value), p_values[index].end());
+	}
 
-		// If only 1 possible value for the box, that box's value in the only possible value
-		if (p_values[index].size() == 1) {
-			gameboard.set_cell_value(index, p_values[index][0]);
-			found_value = true;
-			break;
-		}
+	// If only 1 possible value for the box, that box's value in the only possible value
+	if (p_values[index].size() == 1) {
+		gameboard.set_cell_value(index, p_values[index][0]);
+		found_value = true;
 	}
 
 	// Set the possible values of the gameboard to the new p values 
