@@ -264,6 +264,7 @@ void check_spaces(Gameboard& gameboard) {
 
 void solve_gameboard_logic(Gameboard& gameboard) {
 	int unfilled_cells = gameboard.print_board();
+	std::vector < std::vector<int> > previous_p_values = gameboard.get_possible_values();
 
 	// Check the spaces for possible values until 0 cells are unfilled.
 	while (unfilled_cells > 0) {
@@ -278,6 +279,21 @@ void solve_gameboard_logic(Gameboard& gameboard) {
 
 		system("cls");
 		unfilled_cells = gameboard.print_board();
+
+		// Check whether the possible values changed from the previous iteration. If not, the board cannot be solved with this algorithm.
+		if (gameboard.get_possible_values() == previous_p_values && unfilled_cells != 0) {
+			std::cout << "\nNo solution found.\n\n";
+			std::cout << "Enter any key to continue.\n\n>> ";
+			std::string input;
+			std::cin.clear();
+			std::cin.ignore();
+			std::getline(std::cin, input);
+			system("cls");
+			return;
+		}
+		else {
+			previous_p_values = gameboard.get_possible_values();
+		}
 	}
 	
 	std::cout << "Enter any key to continue.\n\n>> ";
