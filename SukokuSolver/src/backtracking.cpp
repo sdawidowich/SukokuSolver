@@ -7,7 +7,7 @@
 #include <chrono>
 #include <thread>
 
-bool valid(Gameboard& gameboard, int& index) {
+bool valid_cell(Gameboard& gameboard, int& index) {
 	// Checks whether the current gameboard is valid (no repeating values in any row, column, or box).
 	int value = gameboard.get_board()[index];
 	if (value > 9)
@@ -53,7 +53,7 @@ bool test_cells(Gameboard& gameboard) {
 	// Loop through all possible values, checking if it is valid at the index. If it is, call recursive function to go to next empty cell. If it returns true, the board is solved so continue returning true.
 	for (int i = 1; i < 10; i++) {
 		gameboard.set_cell_value(cell_num, i);
-		if (valid(gameboard, cell_num))
+		if (valid_cell(gameboard, cell_num))
 			if (test_cells(gameboard))
 				return true;
 	}

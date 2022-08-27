@@ -21,7 +21,7 @@
     <ClCompile Include="src\backtracking.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\strategies.cpp">
+    <ClCompile Include="src\logic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\gameboard.cpp">
@@ -32,7 +32,7 @@
     <ClInclude Include="headers\backtracking.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="headers\strategies.h">
+    <ClInclude Include="headers\logic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="headers\gameboard.h">

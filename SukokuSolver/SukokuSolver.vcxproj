@@ -158,12 +158,12 @@
     <ClCompile Include="src\backtracking.cpp" />
     <ClCompile Include="src\gameboard.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\strategies.cpp" />
+    <ClCompile Include="src\logic.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="headers\backtracking.h" />
     <ClInclude Include="headers\gameboard.h" />
-    <ClInclude Include="headers\strategies.h" />
+    <ClInclude Include="headers\logic.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

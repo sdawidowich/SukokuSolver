@@ -1,4 +1,4 @@
-#include "strategies.h"
+#include "logic.h"
 #include "gameboard.h"
 
 #include <iostream>
@@ -262,7 +262,7 @@ void check_spaces(Gameboard& gameboard) {
 	gameboard.update_groups();
 }
 
-void solve_gameboard_strategy(Gameboard& gameboard) {
+void solve_gameboard_logic(Gameboard& gameboard) {
 	int unfilled_cells = gameboard.print_board();
 
 	// Check the spaces for possible values until 0 cells are unfilled.

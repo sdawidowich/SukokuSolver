@@ -4,14 +4,22 @@
 #include <windows.h>
 
 #include "gameboard.h"
-#include "strategies.h"
+#include "logic.h"
 #include "backtracking.h"
+
+bool valid_board(Gameboard& gameboard) {
+	for (int i = 0; i < 9; i++) {
+
+	}
+
+	return true;
+}
 
 void select_method(Gameboard& gameboard) {
 	while (true) {
 		// Print menu
 		std::cout << "Select Solving Method" << std::endl;
-		std::cout << "1. Strategy Based Algorithm" << std::endl;
+		std::cout << "1. Logic Based Algorithm" << std::endl;
 		std::cout << "2. Backtracking Algorithm" << std::endl;
 		std::cout << "3. Back" << std::endl;
 		std::cout << "4. Quit\n" << std::endl;
@@ -26,7 +34,7 @@ void select_method(Gameboard& gameboard) {
 		switch (choice) {
 		case '1':
 			system("cls");
-			solve_gameboard_strategy(gameboard);
+			solve_gameboard_logic(gameboard);
 			return;
 		case '2':
 			system("cls");
@@ -50,7 +58,7 @@ void select_method(Gameboard& gameboard) {
 void create_custom_gameboard() {
 	Gameboard new_gameboard;
 
-	std::cout << "Enter a number from 1-9. Enter 0 for an empty space and - to go back a box." << std::endl;
+	std::cout << "Enter a number from 1-9. Enter 0 for an empty space and - to go back a cell." << std::endl;
 	new_gameboard.print_board();
 
 	// Get the numbers in the custom game board
@@ -83,27 +91,33 @@ void create_custom_gameboard() {
 				cell_num++;
 
 				system("cls");
-				std::cout << "Enter a number from 1-9. Enter - to go back a box." << std::endl;
+				std::cout << "Enter a number from 1-9. Enter 0 for an empty space and - to go back a cell." << std::endl;
 				new_gameboard.print_board();
 				break;
 			}
 			else {
 				system("cls");
-				std::cout << "Enter a number from 1-9. Enter - to go back a box." << std::endl;
+				std::cout << "Enter a number from 1-9. Enter 0 for an empty space and - to go back a cell." << std::endl;
 				new_gameboard.print_board();
 				SetConsoleCursorPosition(hConsole, pos);
 			}
 		}
 
 		if (cell_num >= 81) {
+			system("cls");
+			std::cin.clear();
+			std::cin.ignore();
 			while (true) {
+				new_gameboard.print_board();
 				std::cout << "Enter DONE to finish entering your gameboard or enter - to continue editing your gameboard." << std::endl;
 				std::string selection;
-				std::cin.clear();
-				std::cin.ignore();
 				std::getline(std::cin, selection);
 
-				if (selection == "DONE") {
+				if (selection == "DONE" && !valid_board(new_gameboard)) {
+					system("cls");
+					std::cout << "The gameboard is invalid. Each row, column, and box must not have any repeating numbers.\n\n";
+				}
+				else if (selection == "DONE" && valid_board(new_gameboard)) {
 					break;
 				}
 				else if (selection == "-") {
