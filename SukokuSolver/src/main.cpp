@@ -8,8 +8,46 @@
 #include "backtracking.h"
 
 bool valid_board(Gameboard& gameboard) {
+	gameboard.update_groups();
+	// Loop group
 	for (int i = 0; i < 9; i++) {
 
+		// Loop values
+		for (int j = 1; j < 10; j++) {
+			
+			int row_matches = 0;
+			int column_matches = 0;
+			int box_matches = 0;
+			// Loop cells
+			for (int k = 0; k < 9; k++) {
+				// Check row
+				if (gameboard.get_rows()[i][k] == j) {
+					row_matches++;
+
+					if (row_matches > 1) {
+						return false;
+					}
+				}
+
+				// Check column
+				if (gameboard.get_columns()[i][k] == j) {
+					column_matches++;
+
+					if (column_matches > 1) {
+						return false;
+					}
+				}
+
+				// Check box
+				if (gameboard.get_boxes()[i][k] == j) {
+					box_matches++;
+
+					if (box_matches > 1) {
+						return false;
+					}
+				}
+			}
+		}
 	}
 
 	return true;
