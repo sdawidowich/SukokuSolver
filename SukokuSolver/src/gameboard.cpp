@@ -241,3 +241,13 @@ void Gameboard::set_vector(std::vector< std::vector<int> >& vector, int row, int
 		vector.push_back({ value });
 	}
 }
+
+int Gameboard::get_unfilled_cells() {
+	int unfilled_cells = 0;
+	for (int i = 0; i < 81; i++) {
+		if (Gameboard::get_board()[i] == 0) {
+			unfilled_cells++;
+		}
+	}
+	return unfilled_cells;
+}

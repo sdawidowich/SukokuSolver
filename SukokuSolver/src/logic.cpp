@@ -7,9 +7,9 @@
 #include <chrono>
 #include <thread>
 
-bool check_base_values(Gameboard& gameboard, int index) {
+void check_base_values(Gameboard& gameboard, int index) {
 	// Remove used values in the same row, column, and 9x9 box from the possible values of at an index
-	bool found_value = false;
+	gameboard.update_groups();
 
 	// Get positions (row, column, box) at index and possible values of the board
 	Positions gameboard_positions = gameboard.get_positions(index);
@@ -30,13 +30,10 @@ bool check_base_values(Gameboard& gameboard, int index) {
 	// If only 1 possible value for the box, that box's value in the only possible value
 	if (p_values[index].size() == 1) {
 		gameboard.set_cell_value(index, p_values[index][0]);
-		found_value = true;
 	}
 
 	// Set the possible values of the gameboard to the new p values 
 	gameboard.set_possible_values(p_values);
-
-	return found_value;
 }
 
 // Check Naked Pairs
@@ -238,8 +235,7 @@ void check_spaces(Gameboard& gameboard) {
 		// If cell is empty, reduce the number of possible values, else set the possible values equal to the known value of the cell
 		if (gameboard.get_board()[i] == 0) {
 			// Determine baseline possible values for each cell by removing already used cell values in the same row, column, or 9x9 box from the possible values
-			if (check_base_values(gameboard, i))
-				continue;
+			check_base_values(gameboard, i);
 		}
 		else {
 			std::vector< std::vector<int> > p_values = gameboard.get_possible_values();
@@ -257,7 +253,7 @@ void check_spaces(Gameboard& gameboard) {
 
 void solve_gameboard_logic(Gameboard& gameboard) {
 	int unfilled_cells = gameboard.print_board();
-	std::vector < std::vector<int> > previous_p_values = gameboard.get_possible_values();
+	std::vector < std::vector<int> > previous_p_values = { };
 
 	// Check the spaces for possible values until 0 cells are unfilled.
 	while (unfilled_cells > 0) {

@@ -45,4 +45,5 @@ public:
 	Positions get_positions(int index);
 	int get_index(Positions& positions);
 	void set_vector(std::vector< std::vector<int> >& vector, int row, int value);
+	int get_unfilled_cells();
 };

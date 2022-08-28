@@ -299,6 +299,29 @@ void select_preset_gameboard() {
 	}
 }
 
+bool is_solveable(Gameboard gameboard) {
+	int unfilled_cells = gameboard.get_unfilled_cells();
+	
+	std::vector < std::vector<int> > previous_p_values = { };
+
+	// Check the spaces for possible values until 0 cells are unfilled.
+	while (unfilled_cells > 0) {
+		check_spaces(gameboard);
+
+		unfilled_cells = gameboard.get_unfilled_cells();
+
+		// Check whether the possible values changed from the previous iteration. If not, the board cannot be solved with this algorithm.
+		if (gameboard.get_possible_values() == previous_p_values && unfilled_cells != 0) {
+			return false;
+		}
+		else {
+			previous_p_values = gameboard.get_possible_values();
+		}
+	}
+
+	return true;
+}
+
 bool fill_cell(Gameboard& gameboard, std::random_device& rd, std::mt19937& engine) {
 	// Get next empty cell index. If returns -1, no empty cells so board is solved.
 	int cell_num = find_empty_cell(gameboard);
@@ -328,6 +351,26 @@ bool fill_cell(Gameboard& gameboard, std::random_device& rd, std::mt19937& engin
 	return false;
 }
 
+bool empty_cells(Gameboard& gameboard, std::random_device& rd, std::mt19937& engine, int& num_empty) {
+	if (gameboard.get_unfilled_cells() == num_empty) {
+		return true;
+	}
+
+	// Get random cell number. If returns -1, no empty cells so board is solved.
+	std::uniform_int_distribution<int> dist(0, 80);
+	int cell_num = dist(engine);
+
+	// Loop through the possible values so if it needs to backtrack, the next possible value is used.
+	int value_save = gameboard.get_board()[cell_num];
+	gameboard.set_cell_value(cell_num, 0);
+	if (is_solveable(gameboard)) {
+		if (empty_cells(gameboard, rd, engine, num_empty))
+			return true;
+	}
+	gameboard.set_cell_value(cell_num, value_save);
+	return false;
+}
+
 Gameboard generate_random_gameboard() {
 	Gameboard new_gameboard;
 
@@ -336,6 +379,11 @@ Gameboard generate_random_gameboard() {
 
 	// Backtracking random cell filler
 	fill_cell(new_gameboard, rd, engine);
+
+	// 
+	std::uniform_int_distribution<int> dist(50, 55);
+	int num_empty = dist(engine);
+	empty_cells(new_gameboard, rd, engine, num_empty);
 
 	return new_gameboard;
 }
