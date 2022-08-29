@@ -229,18 +229,21 @@ void check_row_boxes(Gameboard& gameboard) {
 	gameboard.set_possible_values(p_values);
 }
 
-void check_spaces(Gameboard& gameboard) {
+void check_logic(Gameboard& gameboard) {
 	// Reduce the number of possible values for each cell using a variety of strategies, filling in values when 1 possible value remains.
-	for (int i = 0; i < 81; i++) {
-		// If cell is empty, reduce the number of possible values, else set the possible values equal to the known value of the cell
-		if (gameboard.get_board()[i] == 0) {
-			// Determine baseline possible values for each cell by removing already used cell values in the same row, column, or 9x9 box from the possible values
-			check_base_values(gameboard, i);
-		}
-		else {
-			std::vector< std::vector<int> > p_values = gameboard.get_possible_values();
-			p_values[i] = { gameboard.get_board()[i] };
-			gameboard.set_possible_values(p_values);
+	for (int i = 0; i < 9; i++) {
+		for (int j = 0; j < 9; j++) {
+			int index = i * 9 + j;
+			// If cell is empty, reduce the number of possible values, else set the possible values equal to the known value of the cell
+			if (gameboard.get_board()[index] == 0) {
+				// Determine baseline possible values for each cell by removing already used cell values in the same row, column, or 9x9 box from the possible values
+				check_base_values(gameboard, index);
+			}
+			else {
+				std::vector< std::vector<int> > p_values = gameboard.get_possible_values();
+				p_values[index] = { gameboard.get_board()[index] };
+				gameboard.set_possible_values(p_values);
+			}
 		}
 	}
 
@@ -257,7 +260,7 @@ void solve_gameboard_logic(Gameboard& gameboard) {
 
 	// Check the spaces for possible values until 0 cells are unfilled.
 	while (unfilled_cells > 0) {
-		check_spaces(gameboard);
+		check_logic(gameboard);
 		
 		// Pause for 0.2 sec
 		using namespace std::this_thread;     // sleep_until

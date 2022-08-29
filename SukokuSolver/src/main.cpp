@@ -306,7 +306,7 @@ bool is_solveable(Gameboard gameboard) {
 
 	// Check the spaces for possible values until 0 cells are unfilled.
 	while (unfilled_cells > 0) {
-		check_spaces(gameboard);
+		check_logic(gameboard);
 
 		unfilled_cells = gameboard.get_unfilled_cells();
 
@@ -352,23 +352,30 @@ bool fill_cell(Gameboard& gameboard, std::random_device& rd, std::mt19937& engin
 }
 
 bool empty_cells(Gameboard& gameboard, std::random_device& rd, std::mt19937& engine, int& num_empty) {
-	if (gameboard.get_unfilled_cells() == num_empty) {
-		return true;
-	}
-
-	// Get random cell number. If returns -1, no empty cells so board is solved.
-	std::uniform_int_distribution<int> dist(0, 80);
-	int cell_num = dist(engine);
-
-	// Loop through the possible values so if it needs to backtrack, the next possible value is used.
-	int value_save = gameboard.get_board()[cell_num];
-	gameboard.set_cell_value(cell_num, 0);
-	if (is_solveable(gameboard)) {
-		if (empty_cells(gameboard, rd, engine, num_empty))
+	while (true) {
+		if (gameboard.get_unfilled_cells() == num_empty) {
 			return true;
+		}
+
+		// Get random cell number. If returns -1, no empty cells so board is solved.
+		std::uniform_int_distribution<int> dist(0, 80);
+		int cell_num = dist(engine);
+
+		// Loop through the possible values so if it needs to backtrack, the next possible value is used.
+		int value_save = gameboard.get_board()[cell_num];
+		gameboard.set_cell_value(cell_num, 0);
+		if (is_solveable(gameboard)) {
+			if (empty_cells(gameboard, rd, engine, num_empty))
+				return true;
+
+			gameboard.set_cell_value(cell_num, value_save);
+		}
+		else {
+			gameboard.set_cell_value(cell_num, value_save);
+			return false;
+		}
 	}
-	gameboard.set_cell_value(cell_num, value_save);
-	return false;
+	
 }
 
 Gameboard generate_random_gameboard() {
@@ -379,6 +386,13 @@ Gameboard generate_random_gameboard() {
 
 	// Backtracking random cell filler
 	fill_cell(new_gameboard, rd, engine);
+
+	// Reset p values
+	auto p_values = new_gameboard.get_possible_values();
+	for (int i = 0; i < 81; i++) {
+		p_values[i] = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+	}
+	new_gameboard.set_possible_values(p_values);
 
 	// 
 	std::uniform_int_distribution<int> dist(50, 55);

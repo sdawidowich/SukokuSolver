@@ -16,5 +16,5 @@ void check_hidden_pair_matches(std::vector<std::vector<int>>& p_values, std::vec
 void check_hidden_pairs(Gameboard& gameboard);
 void check_row_boxes_group(Gameboard& gameboard, std::vector<std::vector<int>>& p_values, int& i, int& j, Group group);
 void check_row_boxes(Gameboard& gameboard);
-void check_spaces(Gameboard& gameboard);
+void check_logic(Gameboard& gameboard);
 void solve_gameboard_logic(Gameboard& gameboard);
