@@ -379,6 +379,7 @@ bool empty_cells(Gameboard& gameboard, std::random_device& rd, std::mt19937& eng
 }
 
 Gameboard generate_random_gameboard() {
+	std::cout << "Loading gameboard..." << std::endl;
 	Gameboard new_gameboard;
 
 	std::random_device rd;
@@ -399,6 +400,7 @@ Gameboard generate_random_gameboard() {
 	int num_empty = dist(engine);
 	empty_cells(new_gameboard, rd, engine, num_empty);
 
+	system("cls");
 	return new_gameboard;
 }
 
